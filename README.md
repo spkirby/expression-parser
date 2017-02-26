@@ -7,3 +7,5 @@ The parser can currently handle:
 * Numeric values, in the form `12345` or `12345.67`
 * Basic arithmetic operators: `+ - * /`
 * Parentheses: `( )`
+
+At the moment, it doesn't fare very well with malformed expressions.
