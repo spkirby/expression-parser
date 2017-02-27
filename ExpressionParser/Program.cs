@@ -30,7 +30,7 @@ namespace ExpressionParser
                         LogTokens(tokens);
                         Console.WriteLine("    = " + evaluator.Evaluate(tokens));
                     }
-                    catch(InvalidTokenException)
+                    catch
                     {
                         Console.WriteLine("Invalid expression.");
                     }

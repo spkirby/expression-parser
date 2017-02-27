@@ -109,31 +109,47 @@ namespace ExpressionParser
                     switch(token.Type)
                     {
                         case TokenType.Add:
-                            result.Value = (stack.Pop().Value + stack.Pop().Value);
+                            result.Value = (PopValueToken(stack).Value + PopValueToken(stack).Value);
                             stack.Push(result);
                             break;
 
                         case TokenType.Subtract:
-                            decimal subValue = stack.Pop().Value;
-                            result.Value = (stack.Pop().Value - subValue);
+                            decimal subValue = PopValueToken(stack).Value;
+                            result.Value = (PopValueToken(stack).Value - subValue);
                             stack.Push(result);
                             break;
 
                         case TokenType.Multiply:
-                            result.Value = (stack.Pop().Value * stack.Pop().Value);
+                            result.Value = (PopValueToken(stack).Value * PopValueToken(stack).Value);
                             stack.Push(result);
                             break;
 
                         case TokenType.Divide:
-                            decimal divisor = stack.Pop().Value;
-                            result.Value = (stack.Pop().Value / divisor);
+                            decimal divisor = PopValueToken(stack).Value;
+                            result.Value = (PopValueToken(stack).Value / divisor);
                             stack.Push(result);
                             break;
                     }
                 }
             }
 
-            return stack.Pop().Value;
+            return PopValueToken(stack).Value;
+        }
+
+        /// <summary>
+        /// Returns the Token from the top of the stack if it's of type TokenType.Value.
+        /// Otherwise, an exception is thrown.
+        /// </summary>
+        /// <param name="tokens">A Stack of Tokens.</param>
+        /// <returns>The topmost Value Token.</returns>
+        private Token PopValueToken(Stack<Token> tokens)
+        {
+            if(tokens.Count == 0 || tokens.Peek().Type != TokenType.Value)
+            {
+                throw new InvalidExpressionException();
+            }
+
+            return tokens.Pop();
         }
     }
 }
