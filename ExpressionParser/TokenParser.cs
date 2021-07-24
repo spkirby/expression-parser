@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ExpressionParser
 {
@@ -12,17 +8,10 @@ namespace ExpressionParser
     /// </summary>
     class TokenParser
     {
-        /// <summary>
-        /// Result from the ReadNumber method.
-        /// </summary>
-        protected struct ReadNumberResult
-        {
-            public decimal Value { get; set; }
-            public int NextIndex { get; set; }
-        }
-
+        private readonly Regex numericRegex = new Regex(@"-?[0-9]+\.?[0-9]*");
         private int index;
         private string expression;
+        private Token previousToken;
 
         /// <summary>
         /// Parses an expression from a string into a list of Tokens.
@@ -31,22 +20,24 @@ namespace ExpressionParser
         /// <returns>The expression as a list of Tokens.</returns>
         public IList<Token> ParseExpression(string expression)
         {
-            this.index = 0;
+            index = 0;
             this.expression = expression;
+            previousToken = null;
 
-            IList<Token> tokens = new List<Token>();
-            Token? token;
+            var tokens = new List<Token>();
+            Token token = GetNextToken();
 
-            while ((token = GetNextToken()).HasValue)
+            while (token != null)
             {
-                if (token.Value.Type == TokenType.Invalid)
+                if (token.Type == TokenType.Invalid)
                 {
                     throw new InvalidTokenException();
                 }
-                else
-                {
-                    tokens.Add(token.Value);
-                }
+
+                previousToken = token;
+                tokens.Add(token);
+
+                token = GetNextToken();
             }
 
             return tokens;
@@ -56,67 +47,105 @@ namespace ExpressionParser
         /// Returns the next Token from the expression string.
         /// </summary>
         /// <returns>A Token, or null if there are no more tokens to return.</returns>
-        protected Token? GetNextToken()
+        protected Token GetNextToken()
         {
-            // Reached the end of the expression, so stop
-            if(index >= expression.Length)
+            if (!MoveToNextChar())
             {
                 return null;
             }
 
-            // Skip over any whitespace
-            while (Char.IsWhiteSpace(expression[index]))
-            {
-                index++;
-            }
-
-            Token token = new Token();
-            char ch = expression[index];
-
-            if(Char.IsDigit(ch))
-            {
-                ReadNumberResult result = ReadNumber(expression, index);
-                index = result.NextIndex;
-
-                token.Type = TokenType.Value;
-                token.Value = result.Value;
-            }
-            else
-            {
-                switch(ch)
-                {
-                    case '(': token.Type = TokenType.LeftParenthesis; break;
-                    case ')': token.Type = TokenType.RightParenthesis; break;
-                    case '+': token.Type = TokenType.Add; break;
-                    case '-': token.Type = TokenType.Subtract; break;
-                    case '*': token.Type = TokenType.Multiply; break;
-                    case '/': token.Type = TokenType.Divide; break;
-                    default : token.Type = TokenType.Invalid; break;
-                }
-
-                index++;
-            }
-
-            return token;
+            return IsValueToken()
+                ? ReadValueToken()
+                : ReadNonValueToken();
         }
 
         /// <summary>
-        /// Parses a number (integer or decimal) in a string, starting at the given index.
+        /// Returns true if the next token appears to be a value.
         /// </summary>
-        /// <param name="str">The string to parse.</param>
-        /// <param name="startIndex">The index at which to start parsing the string.</param>
-        /// <returns>A ReadNumberResult with the parsed number and index of the first
-        /// character after the parsed number.</returns>
-        protected ReadNumberResult ReadNumber(string str, int startIndex)
+        protected bool IsValueToken()
         {
-            Regex regex = new Regex(@"[0-9]+\.?[0-9]*");
-            Match match = regex.Match(str.Substring(startIndex));
+            char ch = expression[index];
 
-            return new ReadNumberResult()
+            if (char.IsDigit(ch))
             {
-                NextIndex = startIndex + match.Length,
-                Value = decimal.Parse(match.Value)
-            };
+                return true;
+            }
+            else
+            {
+                return ch == '-'
+                    && !IsSubtractContext()
+                    && (index + 1) < expression.Length
+                    && char.IsDigit(expression[index + 1]);
+            }
+        }
+
+        /// <summary>
+        /// Advances the index to the next non-whitespace character.
+        /// </summary>
+        protected bool MoveToNextChar()
+        {
+            while (index < expression.Length && char.IsWhiteSpace(expression[index]))
+            {
+                index++;
+            }
+
+            return index < expression.Length;
+        }
+
+        /// <summary>
+        /// Returns true if the previous token means that "-" should refer to subtraction
+        /// rather than negation.
+        /// </summary>
+        protected bool IsSubtractContext()
+        {
+            return previousToken?.Type == TokenType.RightParenthesis
+                || previousToken?.Type == TokenType.Value;
+        }
+
+        protected Token ReadNonValueToken()
+        {
+            switch (expression[index++])
+            {
+                case '(':
+                    return new Token(TokenType.LeftParenthesis);
+                case ')':
+                    return new Token(TokenType.RightParenthesis);
+                case '+':
+                    return new Token(TokenType.Add);
+                case '-':
+                    return IsSubtractContext()
+                        ? new Token(TokenType.Subtract)
+                        : new Token(TokenType.Negate);
+                case '*':
+                    return new Token(TokenType.Multiply);
+                case '/':
+                    return new Token(TokenType.Divide);
+                default:
+                    return new Token(TokenType.Invalid);
+            }
+        }
+
+        /// <summary>
+        /// Parses a number (integer or decimal) in the expression string,
+        /// starting at the current index.
+        /// </summary>
+        /// <returns>A Token representing the parsed value.</returns>
+        protected Token ReadValueToken()
+        {
+            Match match = numericRegex.Match(expression, index);
+            Token token;
+
+            if (match.Success && decimal.TryParse(match.Value, out decimal value))
+            {
+                token = new Token(value);
+                index += match.Length;
+            }
+            else
+            {
+                token = new Token(TokenType.Invalid);
+            }
+
+            return token;
         }
     }
 }

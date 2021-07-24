@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ExpressionParser
+﻿namespace ExpressionParser
 {
     /// <summary>
     /// Defines constants for types of expression Tokens.
@@ -18,6 +12,7 @@ namespace ExpressionParser
         Add = 4,
         Subtract = 5,
         Multiply = 6,
-        Divide = 7
+        Divide = 7,
+        Negate = 8
     }
 }

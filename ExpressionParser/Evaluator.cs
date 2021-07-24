@@ -92,45 +92,46 @@ namespace ExpressionParser
         {
             Stack<Token> stack = new Stack<Token>();
 
-            Token result = new Token()
+            foreach (Token token in tokenList)
             {
-                Type = TokenType.Value,
-                Value = 0
-            };
+                Token result;
 
-            foreach(Token token in tokenList)
-            {
-                if(token.Type == TokenType.Value)
+                if (token.Type == TokenType.Value)
                 {
-                    stack.Push(token);
+                    result = token;
                 }
                 else
                 {
-                    switch(token.Type)
+                    switch (token.Type)
                     {
                         case TokenType.Add:
-                            result.Value = (PopValueToken(stack).Value + PopValueToken(stack).Value);
-                            stack.Push(result);
+                            result = new Token(PopValueToken(stack).Value + PopValueToken(stack).Value);
                             break;
 
                         case TokenType.Subtract:
                             decimal subValue = PopValueToken(stack).Value;
-                            result.Value = (PopValueToken(stack).Value - subValue);
-                            stack.Push(result);
+                            result = new Token(PopValueToken(stack).Value - subValue);
                             break;
 
                         case TokenType.Multiply:
-                            result.Value = (PopValueToken(stack).Value * PopValueToken(stack).Value);
-                            stack.Push(result);
+                            result = new Token(PopValueToken(stack).Value * PopValueToken(stack).Value);
                             break;
 
                         case TokenType.Divide:
                             decimal divisor = PopValueToken(stack).Value;
-                            result.Value = (PopValueToken(stack).Value / divisor);
-                            stack.Push(result);
+                            result = new Token(PopValueToken(stack).Value / divisor);
                             break;
+
+                        case TokenType.Negate:
+                            result = new Token(PopValueToken(stack).Value * -1);
+                            break;
+
+                        default:
+                            throw new NotImplementedException();
                     }
                 }
+
+                stack.Push(result);
             }
 
             return PopValueToken(stack).Value;
