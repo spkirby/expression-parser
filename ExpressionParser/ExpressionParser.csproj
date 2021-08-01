@@ -49,6 +49,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tokens\OperatorToken.cs" />
+    <Compile Include="Tokens\TokenCollection.cs" />
     <Compile Include="Tokens\UnaryOperatorToken.cs" />
     <Compile Include="Tokens\BinaryOperatorToken.cs" />
     <Compile Include="Tokens\ValueToken.cs" />

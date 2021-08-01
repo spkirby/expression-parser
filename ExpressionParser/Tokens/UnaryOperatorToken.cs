@@ -11,8 +11,8 @@ namespace ExpressionParser.Tokens
             return _func(value);
         }
 
-        public UnaryOperatorToken(int precedence, Func<decimal, decimal> func)
-            : base(precedence)
+        public UnaryOperatorToken(int precedence, string displayString, Func<decimal, decimal> func)
+            : base(precedence, displayString)
         {
             _func = func;
         }

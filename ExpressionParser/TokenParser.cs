@@ -19,7 +19,7 @@ namespace ExpressionParser
         /// </summary>
         /// <param name="expression">An expression as a string.</param>
         /// <returns>The expression as a list of Tokens.</returns>
-        public IList<Token> ParseExpression(string expression)
+        public TokenCollection ParseExpression(string expression)
         {
             index = 0;
             this.expression = expression;
@@ -41,7 +41,7 @@ namespace ExpressionParser
                 token = GetNextToken();
             }
 
-            return tokens;
+            return new TokenCollection(tokens);
         }
 
         /// <summary>

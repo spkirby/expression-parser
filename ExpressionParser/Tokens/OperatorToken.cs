@@ -2,8 +2,8 @@
 {
     abstract class OperatorToken : Token
     {
-        public OperatorToken(int precedence)
-            : base(precedence)
+        public OperatorToken(int precedence, string displayString)
+            : base(precedence, displayString)
         {
         }
     }

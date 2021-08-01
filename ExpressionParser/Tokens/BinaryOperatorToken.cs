@@ -11,8 +11,8 @@ namespace ExpressionParser.Tokens
             return _func(leftValue, rightValue);
         }
 
-        public BinaryOperatorToken(int precedence, Func<decimal, decimal, decimal> func)
-            : base(precedence)
+        public BinaryOperatorToken(int precedence, string displayString, Func<decimal, decimal, decimal> func)
+            : base(precedence, displayString)
         {
             _func = func;
         }

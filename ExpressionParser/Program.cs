@@ -27,7 +27,7 @@ namespace ExpressionParser
                 {
                     try
                     {
-                        IList<Token> tokens = parser.ParseExpression(expression);
+                        TokenCollection tokens = parser.ParseExpression(expression);
                         LogTokens(tokens);
                         Console.WriteLine("    = " + evaluator.Evaluate(tokens));
                     }
@@ -40,11 +40,12 @@ namespace ExpressionParser
             while (expression != "");
         }
 
-        static void LogTokens(IList<Token> tokens)
+        static void LogTokens(TokenCollection tokens)
         {
-            foreach (Token token in tokens)
+            foreach (Token token in tokens.AsInfix())
             {
-                Console.WriteLine(token.GetType().Name + (token is ValueToken vt ? " " + vt.Value : ""));
+                Console.Write(token.ToString());
+                Console.WriteLine();
             }
         }
     }

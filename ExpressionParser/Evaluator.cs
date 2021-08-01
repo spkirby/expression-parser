@@ -1,10 +1,6 @@
 ﻿using ExpressionParser.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExpressionParser
 {
@@ -14,88 +10,16 @@ namespace ExpressionParser
     class Evaluator
     {
         /// <summary>
-        /// Evaluates a list of Tokens representing a mathematical
+        /// Evaluates a TokenCollection representing a mathematical
         /// expression and returns the result.
         /// </summary>
-        /// <param name="tokenList">A list of Tokens.</param>
+        /// <param name="tokens">The TokenCollection to be evaluated.</param>
         /// <returns>The result of the expression.</returns>
-        public decimal Evaluate(IList<Token> tokenList)
-        {
-            IList<Token> infixTokens = ConvertInfixToPostfix(tokenList);
-            return EvaluatePostfixTokens(infixTokens);
-        }
-
-        /// <summary>
-        /// Reorders Tokens in infix notation into postfix (Reverse Polish) notation.
-        /// This method uses the Shunting Yard Algorithm to perform the conversion.
-        /// </summary>
-        /// <param name="tokenList">A list of Tokens in infix order.</param>
-        /// <returns>A list of Tokens in postfix order.</returns>
-        private IList<Token> ConvertInfixToPostfix(IList<Token> tokenList)
-        {
-            Queue<Token> tokenQueue = new Queue<Token>(tokenList);
-
-            IList<Token> output = new List<Token>();
-            Stack<Token> tokenStack = new Stack<Token>();
-
-            while (tokenQueue.Count > 0)
-            {
-                Token token = tokenQueue.Dequeue();
-
-                if (token is ValueToken)
-                {
-                    output.Add(token);
-                }
-                else if (token == Token.LeftParenthesis)
-                {
-                    tokenStack.Push(token);
-                }
-                else if (token == Token.RightParenthesis)
-                {
-                    Token popped;
-
-                    // Pop stacked tokens to output until we hit the matching left parenthesis
-                    while (tokenStack.Count > 0 && (popped = tokenStack.Pop()) != Token.LeftParenthesis)
-                    {
-                        output.Add(popped);
-                    }
-                }
-                else
-                {
-                    // Pop operators from the stack to the output if they have a higher
-                    // precedence than the current token
-                    while (
-                        tokenStack.Any() &&
-                        tokenStack.Peek() is OperatorToken &&
-                        token.Precedence <= tokenStack.Peek().Precedence)
-                    {
-                        output.Add(tokenStack.Pop());
-                    }
-
-                    tokenStack.Push(token);
-                }
-            }
-
-            // Pop the remaining stack to output
-            while (tokenStack.Count > 0)
-            {
-                output.Add(tokenStack.Pop());
-            }
-
-            return output;
-        }
-
-        /// <summary>
-        /// Evaluates an expression represented by a list of Tokens in postfix (Reverse Polish)
-        /// notation and returns the result.
-        /// </summary>
-        /// <param name="tokenList">A list of Tokens in postfix notation.</param>
-        /// <returns>The result of the expression.</returns>
-        private decimal EvaluatePostfixTokens(IList<Token> tokenList)
+        public decimal Evaluate(TokenCollection tokens)
         {
             Stack<Token> stack = new Stack<Token>();
 
-            foreach (Token token in tokenList)
+            foreach (Token token in tokens.AsPostfix())
             {
                 Token result;
 
