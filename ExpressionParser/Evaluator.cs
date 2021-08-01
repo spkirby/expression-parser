@@ -1,6 +1,8 @@
-﻿using System;
+﻿using ExpressionParser.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,20 +42,20 @@ namespace ExpressionParser
             {
                 Token token = tokenQueue.Dequeue();
 
-                if (token.Type == TokenType.Value)
+                if (token is ValueToken)
                 {
                     output.Add(token);
                 }
-                else if (token.Type == TokenType.LeftParenthesis)
+                else if (token == Token.LeftParenthesis)
                 {
                     tokenStack.Push(token);
                 }
-                else if (token.Type == TokenType.RightParenthesis)
+                else if (token == Token.RightParenthesis)
                 {
                     Token popped;
 
                     // Pop stacked tokens to output until we hit the matching left parenthesis
-                    while(tokenStack.Count > 0 && (popped = tokenStack.Pop()).Type != TokenType.LeftParenthesis)
+                    while (tokenStack.Count > 0 && (popped = tokenStack.Pop()) != Token.LeftParenthesis)
                     {
                         output.Add(popped);
                     }
@@ -62,9 +64,10 @@ namespace ExpressionParser
                 {
                     // Pop operators from the stack to the output if they have a higher
                     // precedence than the current token
-                    while(tokenStack.Count > 0 &&
-                          tokenStack.Peek().IsOperator &&
-                          token.Precedence <= tokenStack.Peek().Precedence)
+                    while (
+                        tokenStack.Any() &&
+                        tokenStack.Peek() is OperatorToken &&
+                        token.Precedence <= tokenStack.Peek().Precedence)
                     {
                         output.Add(tokenStack.Pop());
                     }
@@ -74,7 +77,7 @@ namespace ExpressionParser
             }
 
             // Pop the remaining stack to output
-            while(tokenStack.Count > 0)
+            while (tokenStack.Count > 0)
             {
                 output.Add(tokenStack.Pop());
             }
@@ -96,39 +99,24 @@ namespace ExpressionParser
             {
                 Token result;
 
-                if (token.Type == TokenType.Value)
+                if (token is ValueToken)
                 {
                     result = token;
                 }
+                else if (token is UnaryOperatorToken unaryOp)
+                {
+                    decimal value = PopValueToken(stack).Value;
+                    result = new ValueToken(unaryOp.Execute(value));
+                }
+                else if (token is BinaryOperatorToken binaryOp)
+                {
+                    decimal rightValue = PopValueToken(stack).Value;
+                    decimal leftValue = PopValueToken(stack).Value;
+                    result = new ValueToken(binaryOp.Execute(leftValue, rightValue));
+                }
                 else
                 {
-                    switch (token.Type)
-                    {
-                        case TokenType.Add:
-                            result = new Token(PopValueToken(stack).Value + PopValueToken(stack).Value);
-                            break;
-
-                        case TokenType.Subtract:
-                            decimal subValue = PopValueToken(stack).Value;
-                            result = new Token(PopValueToken(stack).Value - subValue);
-                            break;
-
-                        case TokenType.Multiply:
-                            result = new Token(PopValueToken(stack).Value * PopValueToken(stack).Value);
-                            break;
-
-                        case TokenType.Divide:
-                            decimal divisor = PopValueToken(stack).Value;
-                            result = new Token(PopValueToken(stack).Value / divisor);
-                            break;
-
-                        case TokenType.Negate:
-                            result = new Token(PopValueToken(stack).Value * -1);
-                            break;
-
-                        default:
-                            throw new NotImplementedException();
-                    }
+                    throw new NotImplementedException();
                 }
 
                 stack.Push(result);
@@ -138,19 +126,19 @@ namespace ExpressionParser
         }
 
         /// <summary>
-        /// Returns the Token from the top of the stack if it's of type TokenType.Value.
+        /// Returns the Token from the top of the stack if it's of type Token.Value.
         /// Otherwise, an exception is thrown.
         /// </summary>
         /// <param name="tokens">A Stack of Tokens.</param>
         /// <returns>The topmost Value Token.</returns>
-        private Token PopValueToken(Stack<Token> tokens)
+        private ValueToken PopValueToken(Stack<Token> tokens)
         {
-            if(tokens.Count == 0 || tokens.Peek().Type != TokenType.Value)
+            if (tokens.Count == 0 || !(tokens.Peek() is ValueToken))
             {
                 throw new InvalidExpressionException();
             }
 
-            return tokens.Pop();
+            return (ValueToken)tokens.Pop();
         }
     }
 }

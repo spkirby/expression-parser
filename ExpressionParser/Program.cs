@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExpressionParser.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -43,7 +44,7 @@ namespace ExpressionParser
         {
             foreach (Token token in tokens)
             {
-                Console.WriteLine(token.Type + (token.Type == TokenType.Value ? " " + token.Value : ""));
+                Console.WriteLine(token.GetType().Name + (token is ValueToken vt ? " " + vt.Value : ""));
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ExpressionParser.Tokens;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace ExpressionParser
@@ -29,7 +30,7 @@ namespace ExpressionParser
 
             while (token != null)
             {
-                if (token.Type == TokenType.Invalid)
+                if (token == Token.Invalid)
                 {
                     throw new InvalidTokenException();
                 }
@@ -98,8 +99,8 @@ namespace ExpressionParser
         /// </summary>
         protected bool IsSubtractContext()
         {
-            return previousToken?.Type == TokenType.RightParenthesis
-                || previousToken?.Type == TokenType.Value;
+            return previousToken == Token.RightParenthesis
+                || previousToken is ValueToken;
         }
 
         protected Token ReadNonValueToken()
@@ -107,21 +108,21 @@ namespace ExpressionParser
             switch (expression[index++])
             {
                 case '(':
-                    return new Token(TokenType.LeftParenthesis);
+                    return Token.LeftParenthesis;
                 case ')':
-                    return new Token(TokenType.RightParenthesis);
+                    return Token.RightParenthesis;
                 case '+':
-                    return new Token(TokenType.Add);
+                    return Token.Add;
                 case '-':
                     return IsSubtractContext()
-                        ? new Token(TokenType.Subtract)
-                        : new Token(TokenType.Negate);
+                        ? (Token)Token.Subtract
+                        : (Token)Token.Negate;
                 case '*':
-                    return new Token(TokenType.Multiply);
+                    return Token.Multiply;
                 case '/':
-                    return new Token(TokenType.Divide);
+                    return Token.Divide;
                 default:
-                    return new Token(TokenType.Invalid);
+                    return Token.Invalid;
             }
         }
 
@@ -137,12 +138,12 @@ namespace ExpressionParser
 
             if (match.Success && decimal.TryParse(match.Value, out decimal value))
             {
-                token = new Token(value);
+                token = new ValueToken(value);
                 index += match.Length;
             }
             else
             {
-                token = new Token(TokenType.Invalid);
+                token = Token.Invalid;
             }
 
             return token;
