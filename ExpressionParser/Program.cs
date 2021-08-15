@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ExpressionParser.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,21 +14,21 @@ namespace ExpressionParser
     {
         static void Main(string[] args)
         {
-            string expression;
             TokenParser parser = new TokenParser();
             Evaluator evaluator = new Evaluator();
+
+            string expression;
 
             do
             {
                 Console.WriteLine("Enter an expression to be evaluated:");
                 expression = Console.ReadLine();
 
-                if (!String.IsNullOrWhiteSpace(expression))
+                if (!string.IsNullOrWhiteSpace(expression))
                 {
                     try
                     {
-                        IList<Token> tokens = parser.ParseExpression(expression);
-                        LogTokens(tokens);
+                        TokenCollection tokens = parser.ParseExpression(expression);
                         Console.WriteLine("    = " + evaluator.Evaluate(tokens));
                     }
                     catch
@@ -37,14 +38,6 @@ namespace ExpressionParser
                 }
             }
             while (expression != "");
-        }
-
-        static void LogTokens(IList<Token> tokens)
-        {
-            foreach (Token token in tokens)
-            {
-                Console.WriteLine(token.Type + (token.Type == TokenType.Value ? " " + token.Value : ""));
-            }
         }
     }
 }
