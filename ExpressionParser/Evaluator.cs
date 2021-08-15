@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace ExpressionParser
 {
     /// <summary>
-    /// Evaluates mathematical expressions represented by lists of Tokens.
+    /// Evaluates a mathematical expression represented by a TokenCollection.
     /// </summary>
     class Evaluator
     {
@@ -17,52 +17,43 @@ namespace ExpressionParser
         /// <returns>The result of the expression.</returns>
         public decimal Evaluate(TokenCollection tokens)
         {
-            Stack<Token> stack = new Stack<Token>();
+            var values = new Stack<decimal>();
 
-            foreach (Token token in tokens.AsPostfix())
+            try
             {
-                Token result;
+                foreach (Token token in tokens.AsPostfix())
+                {
+                    decimal result;
 
-                if (token is ValueToken)
-                {
-                    result = token;
-                }
-                else if (token is UnaryOperatorToken unaryOp)
-                {
-                    decimal value = PopValueToken(stack).Value;
-                    result = new ValueToken(unaryOp.Execute(value));
-                }
-                else if (token is BinaryOperatorToken binaryOp)
-                {
-                    decimal rightValue = PopValueToken(stack).Value;
-                    decimal leftValue = PopValueToken(stack).Value;
-                    result = new ValueToken(binaryOp.Execute(leftValue, rightValue));
-                }
-                else
-                {
-                    throw new NotImplementedException();
+                    switch (token)
+                    {
+                        case ValueToken value:
+                            result = value.Evaluate();
+                            break;
+
+                        case UnaryOperatorToken unaryOp:
+                            result = unaryOp.Evaluate(values.Pop());
+                            break;
+
+                        case BinaryOperatorToken binaryOp:
+                            decimal rightValue = values.Pop();
+                            decimal leftValue = values.Pop();
+                            result = binaryOp.Evaluate(leftValue, rightValue);
+                            break;
+
+                        default:
+                            throw new InvalidExpressionException($"Token '{token}' cannot be evaluated");
+                    }
+
+                    values.Push(result);
                 }
 
-                stack.Push(result);
+                return values.Pop();
             }
-
-            return PopValueToken(stack).Value;
-        }
-
-        /// <summary>
-        /// Returns the Token from the top of the stack if it's of type Token.Value.
-        /// Otherwise, an exception is thrown.
-        /// </summary>
-        /// <param name="tokens">A Stack of Tokens.</param>
-        /// <returns>The topmost Value Token.</returns>
-        private ValueToken PopValueToken(Stack<Token> tokens)
-        {
-            if (tokens.Count == 0 || !(tokens.Peek() is ValueToken))
+            catch (InvalidOperationException ex)
             {
-                throw new InvalidExpressionException();
+                throw new InvalidExpressionException(ex);
             }
-
-            return (ValueToken)tokens.Pop();
         }
     }
 }

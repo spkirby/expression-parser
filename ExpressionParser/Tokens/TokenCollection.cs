@@ -27,7 +27,7 @@ namespace ExpressionParser.Tokens
 
         /// <summary>
         /// Reorders Tokens in infix notation into postfix (Reverse Polish) notation.
-        /// This method uses the Shunting Yard Algorithm to perform the conversion.
+        /// This method uses the shunting yard algorithm to perform the conversion.
         /// </summary>
         /// <param name="tokens">A list of Tokens in infix order.</param>
         /// <returns>A list of Tokens in postfix order.</returns>
@@ -41,9 +41,9 @@ namespace ExpressionParser.Tokens
             {
                 Token token = tokenQueue.Dequeue();
 
-                if (token is ValueToken)
+                if (token is ValueToken value)
                 {
-                    output.Add(token);
+                    output.Add(value);
                 }
                 else if (token == Token.LeftParenthesis)
                 {
@@ -63,10 +63,9 @@ namespace ExpressionParser.Tokens
                 {
                     // Pop operators from the stack to the output if they have a higher
                     // precedence than the current token
-                    while (
-                        tokenStack.Any() &&
-                        tokenStack.Peek() is OperatorToken &&
-                        token.Precedence <= tokenStack.Peek().Precedence)
+                    while (tokenStack.Count > 0
+                        && tokenStack.Peek() is OperatorToken
+                        && token.Precedence <= tokenStack.Peek().Precedence)
                     {
                         output.Add(tokenStack.Pop());
                     }
@@ -76,7 +75,7 @@ namespace ExpressionParser.Tokens
             }
 
             // Pop the remaining stack to output
-            while (tokenStack.Any())
+            while (tokenStack.Count > 0)
             {
                 output.Add(tokenStack.Pop());
             }

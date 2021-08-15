@@ -2,19 +2,19 @@
 
 namespace ExpressionParser.Tokens
 {
-    class BinaryOperatorToken : OperatorToken
+    public class BinaryOperatorToken : OperatorToken
     {
-        private readonly Func<decimal, decimal, decimal> _func;
+        private readonly Func<decimal, decimal, decimal> func;
 
-        public decimal Execute(decimal leftValue, decimal rightValue)
+        public BinaryOperatorToken(string symbol, int precedence, Func<decimal, decimal, decimal> func)
+            : base(symbol, precedence)
         {
-            return _func(leftValue, rightValue);
+            this.func = func;
         }
 
-        public BinaryOperatorToken(int precedence, string displayString, Func<decimal, decimal, decimal> func)
-            : base(precedence, displayString)
+        public decimal Evaluate(decimal leftValue, decimal rightValue)
         {
-            _func = func;
+            return func(leftValue, rightValue);
         }
     }
 }

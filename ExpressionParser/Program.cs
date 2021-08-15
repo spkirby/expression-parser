@@ -14,21 +14,21 @@ namespace ExpressionParser
     {
         static void Main(string[] args)
         {
-            string expression;
             TokenParser parser = new TokenParser();
             Evaluator evaluator = new Evaluator();
+
+            string expression;
 
             do
             {
                 Console.WriteLine("Enter an expression to be evaluated:");
                 expression = Console.ReadLine();
 
-                if (!String.IsNullOrWhiteSpace(expression))
+                if (!string.IsNullOrWhiteSpace(expression))
                 {
                     try
                     {
                         TokenCollection tokens = parser.ParseExpression(expression);
-                        LogTokens(tokens);
                         Console.WriteLine("    = " + evaluator.Evaluate(tokens));
                     }
                     catch
@@ -38,15 +38,6 @@ namespace ExpressionParser
                 }
             }
             while (expression != "");
-        }
-
-        static void LogTokens(TokenCollection tokens)
-        {
-            foreach (Token token in tokens.AsInfix())
-            {
-                Console.Write(token.ToString());
-                Console.WriteLine();
-            }
         }
     }
 }

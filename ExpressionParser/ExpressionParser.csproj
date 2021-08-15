@@ -54,7 +54,7 @@
     <Compile Include="Tokens\BinaryOperatorToken.cs" />
     <Compile Include="Tokens\ValueToken.cs" />
     <Compile Include="Tokens\Token.cs" />
-    <Compile Include="TokenParser.cs" />
+    <Compile Include="Tokens\TokenParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

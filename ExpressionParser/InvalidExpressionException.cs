@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExpressionParser
 {
     public class InvalidExpressionException : Exception
     {
+        private const string DefaultMessage = "The expression was invalid";
+
         public InvalidExpressionException()
+            : base(DefaultMessage)
         {
         }
 
         public InvalidExpressionException(string message)
-            : base(message)
+            : base(DefaultMessage + ": " + message)
         {
         }
 
-        public InvalidExpressionException(string message, Exception innerException)
-            : base(message, innerException)
+        public InvalidExpressionException(Exception innerException)
+            : base(DefaultMessage, innerException)
         {
         }
     }

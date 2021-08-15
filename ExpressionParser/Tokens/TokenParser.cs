@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace ExpressionParser
+namespace ExpressionParser.Tokens
 {
     /// <summary>
     /// Parses string expressions into Tokens.
@@ -15,10 +15,10 @@ namespace ExpressionParser
         private Token previousToken;
 
         /// <summary>
-        /// Parses an expression from a string into a list of Tokens.
+        /// Parses an expression from a string into a TokenCollection.
         /// </summary>
         /// <param name="expression">An expression as a string.</param>
-        /// <returns>The expression as a list of Tokens.</returns>
+        /// <returns>A TokenCollection representing the expression.</returns>
         public TokenCollection ParseExpression(string expression)
         {
             index = 0;
