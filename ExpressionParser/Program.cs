@@ -29,7 +29,7 @@ namespace ExpressionParser
                     try
                     {
                         TokenCollection tokens = parser.ParseExpression(expression);
-                        Console.WriteLine("    = " + evaluator.Evaluate(tokens));
+                        Console.WriteLine("    = " + evaluator.Evaluate(tokens) + "\n");
                     }
                     catch
                     {

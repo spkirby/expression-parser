@@ -121,6 +121,8 @@ namespace ExpressionParser.Tokens
                     return Token.Multiply;
                 case '/':
                     return Token.Divide;
+                case '^':
+                    return Token.Power;
                 default:
                     return Token.Invalid;
             }
