@@ -30,3 +30,9 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Pipeline.Workspace)\ExpressionParser\bin\Release'
+    artifact: 'Binaries'
+    publishLocation: 'pipeline'
