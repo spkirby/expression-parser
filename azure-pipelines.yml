@@ -23,6 +23,7 @@ steps:
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:OutDir=$(Build.ArtifactStagingDirectory)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
@@ -31,8 +32,8 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: PublishPipelineArtifact@1
+- task: PublishBuildArtifacts@1
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)\ExpressionParser\bin\Release'
-    artifact: 'Binaries'
-    publishLocation: 'pipeline'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
