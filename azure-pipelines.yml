@@ -33,6 +33,6 @@ steps:
 
 - task: PublishPipelineArtifact@1
   inputs:
-    targetPath: '$(Pipeline.Workspace)\ExpressionParser\bin\Release'
+    targetPath: '$(System.DefaultWorkingDirectory)\ExpressionParser\bin\Release'
     artifact: 'Binaries'
     publishLocation: 'pipeline'
